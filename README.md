@@ -4,6 +4,8 @@
 
 The project that implements [**Transactional Outbox** pattern](https://microservices.io/patterns/data/transactional-outbox.html)
 
+<img src="docs/images/project_diagram.PNG" alt="drawing" width="40%"/>
+
 ## Components
 
 - [x] **PostgreSQL** database
