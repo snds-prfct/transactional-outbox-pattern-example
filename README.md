@@ -22,7 +22,13 @@ The project that implements [**Transactional Outbox** pattern](https://microserv
 - [x] **Flyway** Database Migration Tool
 - [x] **MapStruct** for objects mapping
 - [x] **GitHub Actions** for CI
+- [x] **Swagger** for API documentation
 - [x] Unit and Integration tests with
     - **Testcontainers**
     - **SpringBootTest**, **MockMvc**
     - **JUnit**, **Mockito**, **AssertJ**
+
+## API
+
+Swagger API documentation is available under </br>
+> `http://{APP_HOST}:{APP_PORT}/api/v1/swagger-ui/index.html`
