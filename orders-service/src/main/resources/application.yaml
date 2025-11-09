@@ -1,3 +1,4 @@
+
 spring:
   datasource:
     url: ${DATABASE_BASE_URL}/${DATABASE_NAME}
@@ -15,6 +16,10 @@ spring:
     default-schema: flyway
     user: ${FLYWAY_USER}
     password: ${FLYWAY_PASSWORD}
+
+  # imports
+  config:
+    import: classpath:outbox-properties.yaml
 
 server:
   port: 8080
