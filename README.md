@@ -15,8 +15,8 @@ The project that implements [**Transactional Outbox** pattern](https://microserv
 
 ## Technologies and Tools
 
-- [x] **Java 21**
-- [x] **Spring Boot** 3.5.6
+- [x] **Java 25**
+- [x] **Spring Boot** 4.0.1
 - [x] **PostgreSQL** Database
 - [x] **Docker** containerization
 - [x] **Flyway** Database Migration Tool
