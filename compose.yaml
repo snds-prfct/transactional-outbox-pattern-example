@@ -1,0 +1,35 @@
+services:
+
+  orders_db:
+    image: postgres:17.5-alpine
+    hostname: orders_db
+    ports:
+      - "54321:5432"
+    networks:
+      - orders_system
+    environment:
+      POSTGRES_USER: "${ORDERS_DB_USERNAME}"
+      POSTGRES_PASSWORD: "${ORDERS_DB_PASSWORD}"
+      POSTGRES_DB: orders
+
+  orders_service:
+    image: snds_prfct/orders-service:0.1
+    build: orders-service/
+    container_name: orders_service
+    depends_on:
+      - orders_db
+    ports:
+      - "8080:8080"
+    networks:
+      - orders_system
+    environment:
+      DATABASE_BASE_URL: jdbc:postgresql://orders_db
+      DATABASE_NAME: orders
+      DATABASE_USERNAME: "${ORDERS_DB_USERNAME}"
+      DATABASE_PASSWORD: "${ORDERS_DB_PASSWORD}"
+      FLYWAY_USER: "${ORDERS_DB_FLYWAY_USERNAME}"
+      FLYWAY_PASSWORD: "${ORDERS_DB_FLYWAY_PASSWORD}"
+
+networks:
+  orders_system:
+    driver: bridge
