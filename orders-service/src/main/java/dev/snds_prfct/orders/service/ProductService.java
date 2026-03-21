@@ -1,6 +1,6 @@
 package dev.snds_prfct.orders.service;
 
-import dev.snds_prfct.orders.entity.orders.Product;
+import dev.snds_prfct.orders.entity.products.Product;
 import dev.snds_prfct.orders.exception.ProductsNotAvailableException;
 import dev.snds_prfct.orders.exception.ProductsNotFoundException;
 import dev.snds_prfct.orders.repository.ProductRepository;

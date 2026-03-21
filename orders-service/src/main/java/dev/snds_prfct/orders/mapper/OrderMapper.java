@@ -6,7 +6,7 @@ import dev.snds_prfct.orders.dto.response.OrderItemResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
-import dev.snds_prfct.orders.entity.orders.Product;
+import dev.snds_prfct.orders.entity.products.Product;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -21,20 +21,22 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface OrderMapper {
+public abstract class OrderMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderItems", source = "productsAmountByProductId", qualifiedByName = "mapProductsToOrderItems")
     @Mapping(target = "customerId", expression = "java( dev.snds_prfct.orders.security.PrincipalUtils.getCurrentUserId() )")
-    Order map(OrderCreationRequestDto orderCreationRequestDto, @Context List<Product> products);
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    public abstract Order map(OrderCreationRequestDto orderCreationRequestDto, @Context List<Product> products);
 
     @Mapping(target = "orderId", source = "id")
     @Mapping(target = "orderItems", source = "orderItems", qualifiedByName = "mapOrderItemsToOrderResponseDtoItems")
     @Mapping(target = "totalPrice", source = ".", qualifiedByName = "calculateTotalPrice")
-    OrderResponseDto map(Order order);
+    public abstract OrderResponseDto map(Order order);
 
     @Named("mapProductsToOrderItems")
-    default List<OrderItem> mapProductsToOrderItems(Map<Long, Integer> productsAmountByProductId, @Context List<Product> products) {
+    protected List<OrderItem> mapProductsToOrderItems(Map<Long, Integer> productsAmountByProductId, @Context List<Product> products) {
         List<OrderItem> orderItems = new ArrayList<>();
         for (Map.Entry<Long, Integer> entry : productsAmountByProductId.entrySet()) {
             Product product = products.stream().filter(p -> entry.getKey().equals(p.getId())).toList().get(0);
@@ -49,7 +51,7 @@ public interface OrderMapper {
     }
 
     @Named("mapOrderItemsToOrderResponseDtoItems")
-    default List<OrderItemResponseDto> mapOrderItemsToOrderResponseDtoItems(List<OrderItem> orderItems) {
+    protected List<OrderItemResponseDto> mapOrderItemsToOrderResponseDtoItems(List<OrderItem> orderItems) {
         List<OrderItemResponseDto> orderItemResponseDtos = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
             orderItemResponseDtos.add(
@@ -59,7 +61,7 @@ public interface OrderMapper {
     }
 
     @Named("calculateTotalPrice")
-    default Long calculateTotalPrice(Order order) {
+    protected Long calculateTotalPrice(Order order) {
         return order.getOrderItems().stream()
                 .mapToLong(orderItem -> orderItem.getQuantity() * orderItem.getUnitPrice())
                 .boxed()
@@ -67,7 +69,7 @@ public interface OrderMapper {
     }
 
     @AfterMapping
-    default void doOrder(@MappingTarget Order order) {
+    protected void fillOrder(@MappingTarget Order order) {
         order.setStatus(OrderStatus.PENDING);
         order.setCreatedAt(Instant.now());
         order.getOrderItems()

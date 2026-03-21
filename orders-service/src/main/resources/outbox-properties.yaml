@@ -1,0 +1,14 @@
+
+orders:
+  outbox:
+    readBatchSize: 10
+    processing:
+      fixedDelayMs: 20000
+    kafka:
+      topics:
+        created-orders:
+          topic: "orders.outbox.created-orders"
+          partitions: 2
+        cancelled-orders:
+          topic: "orders.outbox.cancelled-orders"
+          partitions: 2

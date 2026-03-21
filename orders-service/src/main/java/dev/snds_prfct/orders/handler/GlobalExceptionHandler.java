@@ -1,7 +1,7 @@
 package dev.snds_prfct.orders.handler;
 
 import dev.snds_prfct.orders.dto.response.ErrorDetails;
-import dev.snds_prfct.orders.exception.CustomerDoesNotHaveOrderWithSuchId;
+import dev.snds_prfct.orders.exception.CurrentUserDoesNotHaveOrderWithSuchIdException;
 import dev.snds_prfct.orders.exception.OrderCannotBeCancelledException;
 import dev.snds_prfct.orders.exception.OrderNotFoundException;
 import dev.snds_prfct.orders.exception.OrderWithSuchIdempotencyKeyAlreadyExistsException;
@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.time.Instant;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -45,8 +43,8 @@ public class GlobalExceptionHandler {
                 .body(ErrorDetails.of(HttpStatus.NOT_FOUND.value(), e.getMessage()));
     }
 
-    @ExceptionHandler(CustomerDoesNotHaveOrderWithSuchId.class)
-    public ResponseEntity<ErrorDetails> handleCustomerDoesNotHaveOrderWithSuchId(CustomerDoesNotHaveOrderWithSuchId e) {
+    @ExceptionHandler(CurrentUserDoesNotHaveOrderWithSuchIdException.class)
+    public ResponseEntity<ErrorDetails> handleCustomerDoesNotHaveOrderWithSuchId(CurrentUserDoesNotHaveOrderWithSuchIdException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ErrorDetails.of(HttpStatus.NOT_FOUND.value(), e.getMessage()));

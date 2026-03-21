@@ -1,7 +1,7 @@
 package dev.snds_prfct.orders.controller;
 
-import dev.snds_prfct.orders.dto.response.OrderCancelledResponseDto;
 import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
+import dev.snds_prfct.orders.dto.response.OrderCancelledResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderCreatedResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.service.OrderService;
@@ -14,17 +14,19 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping("/orders")
+    @PostMapping
     public ResponseEntity<OrderCreatedResponseDto> createOrder(@Valid @RequestBody OrderCreationRequestDto orderCreationRequestDto) {
         OrderCreatedResponseDto orderCreatedResponseDto = orderService.createOrder(orderCreationRequestDto);
         return ResponseEntity
@@ -32,7 +34,7 @@ public class OrderController {
                 .body(orderCreatedResponseDto);
     }
 
-    @GetMapping("/orders")
+    @GetMapping
     public ResponseEntity<List<OrderResponseDto>> findOrders() {
         List<OrderResponseDto> orders = orderService.findOrders();
         return ResponseEntity
@@ -40,15 +42,15 @@ public class OrderController {
                 .body(orders);
     }
 
-    @GetMapping("/orders/{orderId}")
-    public ResponseEntity<OrderResponseDto> findOrder(@PathVariable Long orderId) {
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponseDto> findOrderById(@PathVariable Long orderId) {
         OrderResponseDto order = orderService.findOrder(orderId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(order);
     }
 
-    @PatchMapping("/orders/{orderId}/cancel")
+    @PatchMapping("/{orderId}/cancel")
     public ResponseEntity<OrderCancelledResponseDto> cancelOrder(@PathVariable Long orderId) {
         OrderCancelledResponseDto orderCancelledResponseDto = orderService.cancelOrder(orderId);
         return ResponseEntity
