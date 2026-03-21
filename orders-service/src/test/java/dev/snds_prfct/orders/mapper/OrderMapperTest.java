@@ -4,7 +4,7 @@ import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
-import dev.snds_prfct.orders.entity.orders.Product;
+import dev.snds_prfct.orders.entity.products.Product;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 

@@ -1,13 +1,12 @@
 package dev.snds_prfct.orders.service;
 
-import dev.snds_prfct.orders.constant.OrderStatus;
 import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
 import dev.snds_prfct.orders.dto.response.OrderCancelledResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderCreatedResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.entity.orders.Order;
-import dev.snds_prfct.orders.entity.orders.Product;
-import dev.snds_prfct.orders.exception.CustomerDoesNotHaveOrderWithSuchId;
+import dev.snds_prfct.orders.entity.products.Product;
+import dev.snds_prfct.orders.exception.CurrentUserDoesNotHaveOrderWithSuchIdException;
 import dev.snds_prfct.orders.exception.OrderCannotBeCancelledException;
 import dev.snds_prfct.orders.exception.OrderNotFoundException;
 import dev.snds_prfct.orders.exception.OrderWithSuchIdempotencyKeyAlreadyExistsException;
@@ -47,7 +46,7 @@ public class OrderService {
         return orderRepository.findById(orderId)
                 .map(order -> {
                     if (!Objects.equals(order.getCustomerId(), getCurrentUserId())) {
-                        throw new CustomerDoesNotHaveOrderWithSuchId(orderId);
+                        throw new CurrentUserDoesNotHaveOrderWithSuchIdException(orderId);
                     }
                     return orderMapper.map(order);
                 })
@@ -57,7 +56,7 @@ public class OrderService {
     public OrderCancelledResponseDto cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
         if (!Objects.equals(order.getCustomerId(), getCurrentUserId())) {
-            throw new CustomerDoesNotHaveOrderWithSuchId(orderId);
+            throw new CurrentUserDoesNotHaveOrderWithSuchIdException(orderId);
         }
         validateOrderStatusIsCancellable(order);
         orderProcessingService.processOrderCancellation(order);
@@ -65,7 +64,7 @@ public class OrderService {
     }
 
     private void validateOrderStatusIsCancellable(Order order) {
-        if (!OrderStatus.CANCELLABLE_STATUSES.contains(order.getStatus())) {
+        if (!order.getStatus().isCancellable()) {
             throw new OrderCannotBeCancelledException(order.getId(), order.getStatus());
         }
     }

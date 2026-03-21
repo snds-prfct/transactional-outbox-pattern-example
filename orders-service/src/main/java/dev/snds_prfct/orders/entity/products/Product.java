@@ -1,4 +1,4 @@
-package dev.snds_prfct.orders.entity.orders;
+package dev.snds_prfct.orders.entity.products;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

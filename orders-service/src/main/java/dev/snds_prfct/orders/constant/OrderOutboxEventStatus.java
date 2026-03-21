@@ -1,5 +1,5 @@
 package dev.snds_prfct.orders.constant;
 
-public enum OutboxEventStatus {
+public enum OrderOutboxEventStatus {
     PENDING, SENT
 }

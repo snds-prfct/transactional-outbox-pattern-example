@@ -6,7 +6,7 @@ import dev.snds_prfct.orders.dto.response.OrderItemResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
-import dev.snds_prfct.orders.entity.orders.Product;
+import dev.snds_prfct.orders.entity.products.Product;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

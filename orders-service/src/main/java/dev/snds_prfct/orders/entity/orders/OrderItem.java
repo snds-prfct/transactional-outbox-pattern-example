@@ -1,6 +1,7 @@
 package dev.snds_prfct.orders.entity.orders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.snds_prfct.orders.entity.products.Product;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

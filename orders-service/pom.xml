@@ -33,6 +33,12 @@
             <artifactId>spring-boot-jackson2</artifactId>
         </dependency>
 
+        <!--    Kafka       -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
+        </dependency>
+
         <!--    Data Jpa    -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

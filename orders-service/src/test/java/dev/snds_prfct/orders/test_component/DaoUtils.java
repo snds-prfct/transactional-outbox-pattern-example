@@ -3,7 +3,7 @@ package dev.snds_prfct.orders.test_component;
 import dev.snds_prfct.orders.constant.OrderStatus;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
-import dev.snds_prfct.orders.entity.orders.Product;
+import dev.snds_prfct.orders.entity.products.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

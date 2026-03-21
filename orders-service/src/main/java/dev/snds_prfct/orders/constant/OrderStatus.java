@@ -1,9 +1,17 @@
 package dev.snds_prfct.orders.constant;
 
-import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
+@Getter
 public enum OrderStatus {
-    PENDING, PROCESSING, DELIVERED, COMPLETED, CANCELED;
+    PENDING(true),
+    PROCESSING(true),
+    DELIVERED(false),
+    COMPLETED(false),
+    CANCELED(false);
 
-    static public final List<OrderStatus> CANCELLABLE_STATUSES = List.of(PENDING, PROCESSING);
+    private final boolean isCancellable;
+
 }

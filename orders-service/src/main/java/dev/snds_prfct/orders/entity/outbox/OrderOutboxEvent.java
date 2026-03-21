@@ -1,7 +1,7 @@
 package dev.snds_prfct.orders.entity.outbox;
 
-import dev.snds_prfct.orders.constant.OutboxEventStatus;
-import dev.snds_prfct.orders.constant.OutboxEventType;
+import dev.snds_prfct.orders.constant.OrderOutboxEventStatus;
+import dev.snds_prfct.orders.constant.OrderOutboxEventType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,7 +28,7 @@ import java.util.Objects;
 @Builder
 @Setter
 @Getter
-public class OutboxEvent {
+public class OrderOutboxEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,14 +38,14 @@ public class OutboxEvent {
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private OutboxEventType type;
+    private OrderOutboxEventType type;
 
     @Column(name = "updated_at")
     private Instant updatedAt;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private OutboxEventStatus status = OutboxEventStatus.PENDING;
+    private OrderOutboxEventStatus status = OrderOutboxEventStatus.PENDING;
 
     @Column(name = "payload")
     @JdbcTypeCode(SqlTypes.JSON)
@@ -55,7 +55,7 @@ public class OutboxEvent {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OutboxEvent that = (OutboxEvent) o;
+        OrderOutboxEvent that = (OrderOutboxEvent) o;
         return Objects.equals(id, that.id);
     }
 

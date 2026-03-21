@@ -17,6 +17,12 @@ spring:
     user: ${FLYWAY_USER}
     password: ${FLYWAY_PASSWORD}
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
   # imports
   config:
     import: classpath:outbox-properties.yaml
