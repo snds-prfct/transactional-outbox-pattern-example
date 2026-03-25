@@ -55,6 +55,7 @@ services:
     container_name: orders_service
     depends_on:
       - orders_db
+      - kafka
     ports:
       - "8080:8080"
     networks:

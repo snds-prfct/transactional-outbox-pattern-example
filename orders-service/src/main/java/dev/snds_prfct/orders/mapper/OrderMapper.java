@@ -7,6 +7,7 @@ import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
 import dev.snds_prfct.orders.entity.products.Product;
+import lombok.RequiredArgsConstructor;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -14,6 +15,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,7 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@RequiredArgsConstructor
 public abstract class OrderMapper {
+
+    @Autowired
+    private JsonMapper objectMapper;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderItems", source = "productsAmountByProductId", qualifiedByName = "mapProductsToOrderItems")
@@ -34,6 +41,10 @@ public abstract class OrderMapper {
     @Mapping(target = "orderItems", source = "orderItems", qualifiedByName = "mapOrderItemsToOrderResponseDtoItems")
     @Mapping(target = "totalPrice", source = ".", qualifiedByName = "calculateTotalPrice")
     public abstract OrderResponseDto map(Order order);
+
+    public Order map(String orderJson) {
+        return objectMapper.readValue(orderJson, Order.class);
+    }
 
     @Named("mapProductsToOrderItems")
     protected List<OrderItem> mapProductsToOrderItems(Map<Long, Integer> productsAmountByProductId, @Context List<Product> products) {

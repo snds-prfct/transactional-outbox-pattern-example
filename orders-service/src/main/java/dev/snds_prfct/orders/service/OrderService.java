@@ -59,7 +59,7 @@ public class OrderService {
             throw new CurrentUserDoesNotHaveOrderWithSuchIdException(orderId);
         }
         validateOrderStatusIsCancellable(order);
-        orderProcessingService.processOrderCancellation(order);
+        orderProcessingService.processOrderCancellation(orderId);
         return new OrderCancelledResponseDto(orderId);
     }
 

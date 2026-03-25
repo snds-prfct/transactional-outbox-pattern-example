@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class OrderProcessingService {
@@ -23,8 +25,9 @@ public class OrderProcessingService {
     }
 
     @Transactional
-    public void processOrderCancellation(Order order) {
-        orderRepository.updateOrderStatus(order.getId(), OrderStatus.CANCELED);
+    public void processOrderCancellation(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        order.setStatus(OrderStatus.CANCELED);
         orderOutboxService.saveOutboxEvent(order, OrderOutboxEventType.ORDER_CANCELLED);
     }
 }
