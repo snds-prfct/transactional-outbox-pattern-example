@@ -3,6 +3,10 @@ spring:
   application:
     name: orders-service
 
+  mvc:
+    servlet:
+      path: /api
+
   datasource:
     url: ${DATABASE_BASE_URL}/${DATABASE_NAME}
     username: ${DATABASE_USERNAME}
@@ -32,5 +36,9 @@ spring:
 
 server:
   port: 8080
-  servlet:
-    context-path: /api/v1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics

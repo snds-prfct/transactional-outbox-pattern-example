@@ -48,7 +48,7 @@ To shut down the system, run:
 
 ### Docs
 Swagger API documentation is available under </br>
-> localhost:8080/api/v1/swagger-ui/index.html
+> localhost:8080/api/swagger-ui/index.html
 
 ### Kafka UI
 > localhost:8083
