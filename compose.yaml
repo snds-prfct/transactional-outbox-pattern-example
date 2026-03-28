@@ -49,7 +49,7 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       DYNAMIC_CONFIG_ENABLED: 'true'
 
-  orders_service:
+  orders-service:
     image: snds_prfct/orders-service:0.1
     build: orders-service/
     container_name: orders_service

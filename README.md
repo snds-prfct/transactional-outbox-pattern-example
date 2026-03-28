@@ -8,8 +8,8 @@ The project that implements [**Transactional Outbox** pattern](https://microserv
 
 ## Components
 
-1. **PostgreSQL** database
-2. **Orders** Microservice
+1. **Orders** Microservice
+2. **PostgreSQL** database
 3. **Apache Kafka** Message Broker
 
 ## Technologies and Tools
