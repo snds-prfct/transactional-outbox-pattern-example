@@ -1,8 +1,9 @@
 services:
 
-  orders_db:
+  orders-db:
     image: postgres:17.5-alpine
-    hostname: orders_db
+    hostname: orders-db
+    container_name: orders_db
     ports:
       - "54321:5432"
     networks:
@@ -11,6 +12,14 @@ services:
       POSTGRES_USER: "${ORDERS_DB_USERNAME}"
       POSTGRES_PASSWORD: "${ORDERS_DB_PASSWORD}"
       POSTGRES_DB: orders
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 300M
+        reservations:
+          cpus: '0.25'
+          memory: 100M
 
   kafka:
     image: apache/kafka:4.1.0
@@ -36,6 +45,14 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 600M
+        reservations:
+          cpus: '0.25'
+          memory: 300M
 
   kafka-ui:
     image: ghcr.io/kafbat/kafka-ui:v1.4.2
@@ -48,26 +65,42 @@ services:
       KAFKA_CLUSTERS_0_NAME: local-cluster
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       DYNAMIC_CONFIG_ENABLED: 'true'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
+        reservations:
+          cpus: '0.25'
+          memory: 250M
 
   orders-service:
     image: snds_prfct/orders-service:0.1
     build: orders-service/
     container_name: orders_service
     depends_on:
-      - orders_db
+      - orders-db
       - kafka
     ports:
       - "8080:8080"
     networks:
       - orders_system
     environment:
-      DATABASE_BASE_URL: jdbc:postgresql://orders_db
+      DATABASE_BASE_URL: jdbc:postgresql://orders-db
       DATABASE_NAME: orders
       DATABASE_USERNAME: "${ORDERS_DB_USERNAME}"
       DATABASE_PASSWORD: "${ORDERS_DB_PASSWORD}"
       FLYWAY_USER: "${ORDERS_DB_FLYWAY_USERNAME}"
       FLYWAY_PASSWORD: "${ORDERS_DB_FLYWAY_PASSWORD}"
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 500M
+        reservations:
+          cpus: '0.25'
+          memory: 200M
 
 networks:
   orders_system:
