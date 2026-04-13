@@ -1,9 +1,12 @@
 package dev.snds_prfct.orders.service;
 
+import dev.snds_prfct.orders.dto.request.OrderBy;
 import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
+import dev.snds_prfct.orders.dto.request.OrderDirection;
 import dev.snds_prfct.orders.dto.response.OrderCancelledResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderCreatedResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
+import dev.snds_prfct.orders.dto.response.PageableResponse;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.products.Product;
 import dev.snds_prfct.orders.exception.CurrentUserDoesNotHaveOrderWithSuchIdException;
@@ -13,6 +16,10 @@ import dev.snds_prfct.orders.exception.OrderWithSuchIdempotencyKeyAlreadyExistsE
 import dev.snds_prfct.orders.mapper.OrderMapper;
 import dev.snds_prfct.orders.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,10 +43,22 @@ public class OrderService {
         return new OrderCreatedResponseDto(createdOrderId);
     }
 
-    public List<OrderResponseDto> findOrders() {
-        return findAllOrdersByCustomerId().stream()
+    public PageableResponse<OrderResponseDto> findCustomerOrders(int page, int size, OrderBy orderBy, OrderDirection orderDirection) {
+        Page<Order> pageableResult = findAllOrdersByCustomerId(page, size, orderBy, orderDirection);
+        List<OrderResponseDto> responseContent = pageableResult.getContent().stream()
                 .map(orderMapper::map)
                 .toList();
+
+        return PageableResponse.<OrderResponseDto>builder()
+                .content(responseContent)
+                .pagination(
+                        PageableResponse.Pagination.builder()
+                                .page(pageableResult.getNumber())
+                                .pages(pageableResult.getTotalPages())
+                                .isLast(pageableResult.isLast())
+                                .build()
+                )
+                .build();
     }
 
     public OrderResponseDto findOrder(Long orderId) {
@@ -76,13 +95,14 @@ public class OrderService {
     }
 
     private void validateOrderIdempotencyKey(OrderCreationRequestDto orderCreationRequestDto) {
-        List<Order> customerOrders = findAllOrdersByCustomerId();
-        if (!customerOrders.stream().filter(o -> o.getIdempotencyKey().equals(orderCreationRequestDto.idempotencyKey())).toList().isEmpty()) {
+        if (orderRepository.existsByCustomerIdAndIdempotencyKey(getCurrentUserId(), orderCreationRequestDto.idempotencyKey())) {
             throw new OrderWithSuchIdempotencyKeyAlreadyExistsException(orderCreationRequestDto.idempotencyKey());
         }
     }
 
-    private List<Order> findAllOrdersByCustomerId() {
-        return orderRepository.findAllOrdersByCustomerId(getCurrentUserId());
+    private Page<Order> findAllOrdersByCustomerId(int page, int size, OrderBy orderBy, OrderDirection orderDirection) {
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(orderDirection == OrderDirection.DESC ? Sort.Direction.DESC : Sort.Direction.ASC, orderBy.getValue()));
+        return orderRepository.findAllOrdersByCustomerId(getCurrentUserId(), pageable);
     }
 }

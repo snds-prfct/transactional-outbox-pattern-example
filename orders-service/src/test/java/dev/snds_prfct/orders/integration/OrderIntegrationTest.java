@@ -1,8 +1,11 @@
 package dev.snds_prfct.orders.integration;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.snds_prfct.orders.constant.OrderStatus;
 import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
+import dev.snds_prfct.orders.dto.response.OrderResponseDto;
+import dev.snds_prfct.orders.dto.response.PageableResponse;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
 import dev.snds_prfct.orders.test_component.DaoUtils;
@@ -10,12 +13,13 @@ import dev.snds_prfct.orders.test_component.TestcontainersConfiguration;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 import java.util.Map;
@@ -60,7 +64,7 @@ public class OrderIntegrationTest {
                 .status(OrderStatus.PENDING)
                 .build();
 
-        // when, then
+        // when
         mockMvc.perform(
                         post("/orders")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -70,6 +74,9 @@ public class OrderIntegrationTest {
                 .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON.toString()))
                 .andExpect(content().json("{\"orderId\": 1}"))
                 .andDo(print());
+
+        // then
+        // checking orders in db
         List<Order> customerOrders = daoUtils.findAllOrdersByCustomerId(1L);
 
         assertThat(customerOrders).isNotEmpty().hasSize(1);
@@ -78,6 +85,7 @@ public class OrderIntegrationTest {
                 .ignoringFields("createdAt", "orderItems")
                 .isEqualTo(expectedOrder);
 
+        // checking order items in db
         List<OrderItem> savedOrderItems = daoUtils.findAllOrderItemsByOrderId(1L);
         assertThat(savedOrderItems).isNotEmpty().hasSize(2);
         assertThat(savedOrderItems)
@@ -93,18 +101,33 @@ public class OrderIntegrationTest {
                 assertThat(orderItem.getUnitPrice()).isEqualTo(25);
             }
         }
+
+        // checking order outbox events in db
+
     }
 
     @Test
     @SneakyThrows
     void testGetOrdersWhenCustomerDoesNotHaveAnyOrders() {
-        mockMvc.perform(
+        MvcResult mvcResult = mockMvc.perform(
                         get("/orders")
                                 .queryParam("customerId", "1")
                 )
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON.toString()))
-                .andExpect(content().json("[]"))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        PageableResponse<OrderResponseDto> pageableResponse = objectMapper.readValue(contentAsString, new TypeReference<PageableResponse<OrderResponseDto>>() {
+        });
+
+        assertThat(pageableResponse.content())
+                .isEmpty();
+        assertThat(pageableResponse.pagination().page())
+                .isEqualTo(0);
+        assertThat(pageableResponse.pagination().pages())
+                .isEqualTo(0);
+        assertThat(pageableResponse.pagination().isLast())
+                .isTrue();
     }
 }
