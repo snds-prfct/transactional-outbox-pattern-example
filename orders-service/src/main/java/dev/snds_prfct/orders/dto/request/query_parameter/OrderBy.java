@@ -1,4 +1,4 @@
-package dev.snds_prfct.orders.dto.request;
+package dev.snds_prfct.orders.dto.request.query_parameter;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

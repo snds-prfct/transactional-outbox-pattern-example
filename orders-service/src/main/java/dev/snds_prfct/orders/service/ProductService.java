@@ -14,22 +14,29 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
+
     private final ProductRepository productRepository;
 
-    public List<Product> checkProductsAvailability(Set<Long> requiredProductIds) {
+    public List<Product> findProducts(Set<Long> requiredProductIds) {
         List<Product> foundProducts = productRepository.findAllById(requiredProductIds);
-        if (foundProducts.size() != requiredProductIds.size()) {
-            HashSet<Long> notFoundProductIds = new HashSet<>(requiredProductIds);
-            foundProducts.stream().map(Product::getId).toList().forEach(notFoundProductIds::remove);
-            throw new ProductsNotFoundException(notFoundProductIds);
-        }
+        validateAllProductsAreFound(requiredProductIds, foundProducts);
+        validateProductsAreAvailable(foundProducts);
+        return foundProducts;
+    }
 
-        List<Product> notAvailableProducts = foundProducts.stream()
+    private void validateAllProductsAreFound(Set<Long> requiredProductIds, List<Product> foundProducts) {
+        if (foundProducts.size() != requiredProductIds.size()) {
+            throw new ProductsNotFoundException();
+        }
+    }
+
+    private void validateProductsAreAvailable(List<Product> foundProducts) {
+        List<Long> notAvailableProducts = foundProducts.stream()
                 .filter(product -> !product.getIsAvailable())
+                .map(Product::getId)
                 .toList();
         if (!notAvailableProducts.isEmpty()) {
-            throw new ProductsNotAvailableException(notAvailableProducts.stream().map(Product::getId).toList());
+            throw new ProductsNotAvailableException(notAvailableProducts);
         }
-        return foundProducts;
     }
 }

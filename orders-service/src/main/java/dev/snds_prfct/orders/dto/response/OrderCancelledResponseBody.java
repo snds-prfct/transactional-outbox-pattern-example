@@ -1,6 +1,6 @@
 package dev.snds_prfct.orders.dto.response;
 
-public record OrderCancelledResponseDto(
+public record OrderCancelledResponseBody(
         Long orderId
 ) {
 }

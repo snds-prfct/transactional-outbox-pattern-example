@@ -1,13 +1,13 @@
 package dev.snds_prfct.orders.processor;
 
-import dev.snds_prfct.orders.configuration.OutboxEventsCancelledOrdersTopicProperties;
-import dev.snds_prfct.orders.configuration.OutboxEventsCreatedOrdersTopicProperties;
+import dev.snds_prfct.orders.kafka.property.OutboxEventsCancelledOrdersTopicProperties;
+import dev.snds_prfct.orders.kafka.property.OutboxEventsCreatedOrdersTopicProperties;
 import dev.snds_prfct.orders.constant.OrderOutboxEventStatus;
 import dev.snds_prfct.orders.mapper.OrderMapper;
 import dev.snds_prfct.orders.mapper.OrderMessageMapper;
-import dev.snds_prfct.orders.message.MessageInfo;
-import dev.snds_prfct.orders.message.OrderMessage;
-import dev.snds_prfct.orders.producer.OrderKafkaProducer;
+import dev.snds_prfct.orders.kafka.message.MessageInfo;
+import dev.snds_prfct.orders.kafka.message.OrderMessage;
+import dev.snds_prfct.orders.kafka.producer.OrderKafkaProducer;
 import dev.snds_prfct.orders.service.OrderOutboxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

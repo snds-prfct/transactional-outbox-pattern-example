@@ -1,9 +1,10 @@
 package dev.snds_prfct.orders.mapper;
 
 import dev.snds_prfct.orders.constant.OrderStatus;
-import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
+import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
 import dev.snds_prfct.orders.dto.response.OrderItemResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
+import dev.snds_prfct.orders.dto.response.PageableResponse;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
 import dev.snds_prfct.orders.entity.products.Product;
@@ -16,6 +17,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
@@ -35,7 +37,7 @@ public abstract class OrderMapper {
     @Mapping(target = "customerId", expression = "java( dev.snds_prfct.orders.security.PrincipalUtils.getCurrentUserId() )")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "status", ignore = true)
-    public abstract Order map(OrderCreationRequestDto orderCreationRequestDto, @Context List<Product> products);
+    public abstract Order map(OrderCreationRequestBody orderCreationRequestBody, @Context List<Product> products);
 
     @Mapping(target = "orderId", source = "id")
     @Mapping(target = "orderItems", source = "orderItems", qualifiedByName = "mapOrderItemsToOrderResponseDtoItems")
@@ -44,6 +46,23 @@ public abstract class OrderMapper {
 
     public Order map(String orderJson) {
         return objectMapper.readValue(orderJson, Order.class);
+    }
+
+    public PageableResponse<OrderResponseDto> map(Page<Order> pageableResult) {
+        List<OrderResponseDto> responseContent = pageableResult.getContent().stream()
+                .map(this::map)
+                .toList();
+
+        return PageableResponse.<OrderResponseDto>builder()
+                .content(responseContent)
+                .pagination(
+                        PageableResponse.Pagination.builder()
+                                .page(pageableResult.getNumber())
+                                .pages(pageableResult.getTotalPages())
+                                .isLast(pageableResult.isLast())
+                                .build()
+                )
+                .build();
     }
 
     @Named("mapProductsToOrderItems")

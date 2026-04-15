@@ -9,6 +9,7 @@ import dev.snds_prfct.orders.entity.outbox.OrderOutboxEvent;
 import dev.snds_prfct.orders.exception.OutboxEventPayloadWasNotSerializedException;
 import dev.snds_prfct.orders.repository.OrderOutboxEventRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,12 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderOutboxService {
 
     @Value("${orders.outbox.readBatchSize}")
-    private Integer outboxReadBatchSize;
+    private int outboxReadBatchSize;
 
     private final OrderOutboxEventRepository orderOutboxEventRepository;
     private final ObjectMapper objectMapper;
@@ -44,10 +46,11 @@ public class OrderOutboxService {
         orderOutboxEventRepository.changeOrderOutboxEventStatuses(ids, status);
     }
 
-    private String serializePayload(Object payload) {
+    private String serializePayload(Order order) {
         try {
-            return objectMapper.writeValueAsString(payload);
+            return objectMapper.writeValueAsString(order);
         } catch (JsonProcessingException e) {
+            log.error("Failed to serialize order into JSON format for order outbox event payload. Order: {}", order.toString(), e);
             throw new OutboxEventPayloadWasNotSerializedException(e);
         }
     }

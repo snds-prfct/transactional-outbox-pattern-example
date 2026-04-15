@@ -1,7 +1,7 @@
 package dev.snds_prfct.orders.utils;
 
 import dev.snds_prfct.orders.constant.OrderStatus;
-import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
+import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
 import dev.snds_prfct.orders.dto.response.OrderItemResponseDto;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.entity.orders.Order;
@@ -28,8 +28,8 @@ public class TestConstants {
     public static final String TEST_PRODUCT2_NAME = "Test Product 2";
     public static final Long TEST_PRODUCT2_PRICE = 100L;
 
-    public static OrderCreationRequestDto getOrderCreationRequestDto() {
-        return new OrderCreationRequestDto(
+    public static OrderCreationRequestBody getOrderCreationRequestDto() {
+        return new OrderCreationRequestBody(
                 TEST_IDEMPOTENCY_KEY,
                 Map.of(TEST_PRODUCT1_ID, 2, TEST_PRODUCT2_ID, 2),
                 TEST_DELIVERY_ADDRESS);

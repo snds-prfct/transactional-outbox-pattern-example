@@ -8,9 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
+
+    Optional<Order> findByIdAndCustomerId(Long id, Long customerId);
 
     boolean existsByCustomerIdAndIdempotencyKey(Long customerId, UUID idempotencyKey);
 

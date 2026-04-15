@@ -3,7 +3,7 @@ package dev.snds_prfct.orders.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.snds_prfct.orders.constant.OrderStatus;
-import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
+import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.dto.response.PageableResponse;
 import dev.snds_prfct.orders.entity.orders.Order;
@@ -52,10 +52,10 @@ public class OrderIntegrationTest {
         // given
         UUID idempotencyKey = UUID.randomUUID();
         String testDeliveryAddress = "Test Address";
-        OrderCreationRequestDto orderCreationRequestDto = new OrderCreationRequestDto(
+        OrderCreationRequestBody orderCreationRequestBody = new OrderCreationRequestBody(
                 idempotencyKey,
                 Map.of(1L, 2, 2L, 2), testDeliveryAddress);
-        String dto = objectMapper.writeValueAsString(orderCreationRequestDto);
+        String dto = objectMapper.writeValueAsString(orderCreationRequestBody);
         Order expectedOrder = Order.builder()
                 .id(1L)
                 .customerId(1L)

@@ -16,7 +16,7 @@ public interface OrderOutboxEventRepository extends JpaRepository<OrderOutboxEve
             WHERE oe.status = 'PENDING'
             ORDER BY oe.createdAt ASC
             LIMIT :batchSize""")
-    List<OrderOutboxEvent> findPendingOrderOutboxEventsBatch(Integer batchSize);
+    List<OrderOutboxEvent> findPendingOrderOutboxEventsBatch(int batchSize);
 
     @Modifying
     @Query("UPDATE OrderOutboxEvent oe SET oe.status = :status, oe.updatedAt = CURRENT_TIMESTAMP WHERE oe.id IN (:ids)")

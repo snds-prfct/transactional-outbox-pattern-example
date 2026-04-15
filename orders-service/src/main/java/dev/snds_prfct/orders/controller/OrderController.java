@@ -1,10 +1,10 @@
 package dev.snds_prfct.orders.controller;
 
-import dev.snds_prfct.orders.dto.request.OrderBy;
-import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
-import dev.snds_prfct.orders.dto.request.OrderDirection;
-import dev.snds_prfct.orders.dto.response.OrderCancelledResponseDto;
-import dev.snds_prfct.orders.dto.response.OrderCreatedResponseDto;
+import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
+import dev.snds_prfct.orders.dto.request.query_parameter.OrderBy;
+import dev.snds_prfct.orders.dto.request.query_parameter.OrderDirection;
+import dev.snds_prfct.orders.dto.response.OrderCancelledResponseBody;
+import dev.snds_prfct.orders.dto.response.OrderCreatedResponseBody;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.dto.response.PageableResponse;
 import dev.snds_prfct.orders.service.OrderService;
@@ -41,11 +41,11 @@ public class OrderController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<OrderCreatedResponseDto> createOrder(@Valid @RequestBody OrderCreationRequestDto orderCreationRequestDto) {
-        OrderCreatedResponseDto orderCreatedResponseDto = orderService.createOrder(orderCreationRequestDto);
+    public ResponseEntity<OrderCreatedResponseBody> createOrder(@Valid @RequestBody OrderCreationRequestBody orderCreationRequestBody) {
+        OrderCreatedResponseBody orderCreatedResponseBody = orderService.createOrder(orderCreationRequestBody);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(orderCreatedResponseDto);
+                .body(orderCreatedResponseBody);
     }
 
     @Operation(summary = "Find all orders", description = "Returns all user's orders")
@@ -69,7 +69,7 @@ public class OrderController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<OrderResponseDto> findOrderById(@PathVariable Long orderId) {
-        OrderResponseDto order = orderService.findOrder(orderId);
+        OrderResponseDto order = orderService.findCustomerOrder(orderId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(order);
@@ -80,10 +80,10 @@ public class OrderController {
             path = "/{orderId}/cancel",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<OrderCancelledResponseDto> cancelOrder(@PathVariable Long orderId) {
-        OrderCancelledResponseDto orderCancelledResponseDto = orderService.cancelOrder(orderId);
+    public ResponseEntity<OrderCancelledResponseBody> cancelOrder(@PathVariable Long orderId) {
+        OrderCancelledResponseBody orderCancelledResponseBody = orderService.cancelOrder(orderId);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderCancelledResponseDto);
+                .body(orderCancelledResponseBody);
     }
 }
