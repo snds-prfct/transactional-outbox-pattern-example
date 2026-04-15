@@ -2,7 +2,7 @@ package dev.snds_prfct.orders.mapper;
 
 import dev.snds_prfct.orders.constant.OrderStatus;
 import dev.snds_prfct.orders.entity.orders.Order;
-import dev.snds_prfct.orders.message.OrderMessage;
+import dev.snds_prfct.orders.kafka.message.OrderMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

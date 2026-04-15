@@ -1,7 +1,7 @@
-package dev.snds_prfct.orders.producer;
+package dev.snds_prfct.orders.kafka.producer;
 
-import dev.snds_prfct.orders.message.MessageInfo;
-import dev.snds_prfct.orders.message.OrderMessage;
+import dev.snds_prfct.orders.kafka.message.MessageInfo;
+import dev.snds_prfct.orders.kafka.message.OrderMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,10 +18,6 @@ import java.util.concurrent.CompletableFuture;
 public class OrderKafkaProducer implements KafkaProducer<Long, OrderMessage> {
 
     private final KafkaTemplate<Long, OrderMessage> kafkaTemplate;
-
-    public CompletableFuture<SendResult<Long, OrderMessage>> sendMessage(String topic, Long key, OrderMessage message) {
-        return kafkaTemplate.send(topic, key, message);
-    }
 
     public List<CompletableFuture<SendResult<Long, OrderMessage>>> sendMessages(String topic, List<MessageInfo<Long, OrderMessage>> messages) {
         if (messages == null || messages.isEmpty()) {

@@ -8,4 +8,8 @@ public class ProductsNotFoundException extends RuntimeException {
     public ProductsNotFoundException(Collection<Long> productIds) {
         super(EXCEPTION_MESSAGE_TEMPLATE.formatted(productIds));
     }
+
+    public ProductsNotFoundException() {
+        super();
+    }
 }

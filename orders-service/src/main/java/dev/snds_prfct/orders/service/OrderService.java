@@ -1,15 +1,14 @@
 package dev.snds_prfct.orders.service;
 
-import dev.snds_prfct.orders.dto.request.OrderBy;
-import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
-import dev.snds_prfct.orders.dto.request.OrderDirection;
-import dev.snds_prfct.orders.dto.response.OrderCancelledResponseDto;
-import dev.snds_prfct.orders.dto.response.OrderCreatedResponseDto;
+import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
+import dev.snds_prfct.orders.dto.request.query_parameter.OrderBy;
+import dev.snds_prfct.orders.dto.request.query_parameter.OrderDirection;
+import dev.snds_prfct.orders.dto.response.OrderCancelledResponseBody;
+import dev.snds_prfct.orders.dto.response.OrderCreatedResponseBody;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.dto.response.PageableResponse;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.products.Product;
-import dev.snds_prfct.orders.exception.CurrentUserDoesNotHaveOrderWithSuchIdException;
 import dev.snds_prfct.orders.exception.OrderCannotBeCancelledException;
 import dev.snds_prfct.orders.exception.OrderNotFoundException;
 import dev.snds_prfct.orders.exception.OrderWithSuchIdempotencyKeyAlreadyExistsException;
@@ -23,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 import static dev.snds_prfct.orders.security.PrincipalUtils.getCurrentUserId;
 
@@ -36,50 +34,31 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final OrderProcessingService orderProcessingService;
 
-    public OrderCreatedResponseDto createOrder(OrderCreationRequestDto orderCreationRequestDto) {
-        List<Product> products = validateOrderCreationRequestDto(orderCreationRequestDto);
-        Order order = orderMapper.map(orderCreationRequestDto, products);
+    public OrderCreatedResponseBody createOrder(OrderCreationRequestBody orderCreationRequestBody) {
+        validateOrderIdempotencyKey(orderCreationRequestBody);
+        List<Product> products = productService.findProducts(orderCreationRequestBody.productsAmountByProductId().keySet());
+        Order order = orderMapper.map(orderCreationRequestBody, products);
         Long createdOrderId = orderProcessingService.processOrderCreation(order);
-        return new OrderCreatedResponseDto(createdOrderId);
+        return new OrderCreatedResponseBody(createdOrderId);
     }
 
     public PageableResponse<OrderResponseDto> findCustomerOrders(int page, int size, OrderBy orderBy, OrderDirection orderDirection) {
         Page<Order> pageableResult = findAllOrdersByCustomerId(page, size, orderBy, orderDirection);
-        List<OrderResponseDto> responseContent = pageableResult.getContent().stream()
-                .map(orderMapper::map)
-                .toList();
-
-        return PageableResponse.<OrderResponseDto>builder()
-                .content(responseContent)
-                .pagination(
-                        PageableResponse.Pagination.builder()
-                                .page(pageableResult.getNumber())
-                                .pages(pageableResult.getTotalPages())
-                                .isLast(pageableResult.isLast())
-                                .build()
-                )
-                .build();
+        return orderMapper.map(pageableResult);
     }
 
-    public OrderResponseDto findOrder(Long orderId) {
-        return orderRepository.findById(orderId)
-                .map(order -> {
-                    if (!Objects.equals(order.getCustomerId(), getCurrentUserId())) {
-                        throw new CurrentUserDoesNotHaveOrderWithSuchIdException(orderId);
-                    }
-                    return orderMapper.map(order);
-                })
+    public OrderResponseDto findCustomerOrder(Long orderId) {
+        return orderRepository.findByIdAndCustomerId(orderId, getCurrentUserId())
+                .map(orderMapper::map)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
-    public OrderCancelledResponseDto cancelOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
-        if (!Objects.equals(order.getCustomerId(), getCurrentUserId())) {
-            throw new CurrentUserDoesNotHaveOrderWithSuchIdException(orderId);
-        }
+    public OrderCancelledResponseBody cancelOrder(Long orderId) {
+        Order order = orderRepository.findByIdAndCustomerId(orderId, getCurrentUserId())
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         validateOrderStatusIsCancellable(order);
         orderProcessingService.processOrderCancellation(orderId);
-        return new OrderCancelledResponseDto(orderId);
+        return new OrderCancelledResponseBody(orderId);
     }
 
     private void validateOrderStatusIsCancellable(Order order) {
@@ -88,15 +67,9 @@ public class OrderService {
         }
     }
 
-    private List<Product> validateOrderCreationRequestDto(OrderCreationRequestDto orderCreationRequestDto) {
-        List<Product> products = productService.checkProductsAvailability(orderCreationRequestDto.productsAmountByProductId().keySet());
-        validateOrderIdempotencyKey(orderCreationRequestDto);
-        return products;
-    }
-
-    private void validateOrderIdempotencyKey(OrderCreationRequestDto orderCreationRequestDto) {
-        if (orderRepository.existsByCustomerIdAndIdempotencyKey(getCurrentUserId(), orderCreationRequestDto.idempotencyKey())) {
-            throw new OrderWithSuchIdempotencyKeyAlreadyExistsException(orderCreationRequestDto.idempotencyKey());
+    private void validateOrderIdempotencyKey(OrderCreationRequestBody orderCreationRequestBody) {
+        if (orderRepository.existsByCustomerIdAndIdempotencyKey(getCurrentUserId(), orderCreationRequestBody.idempotencyKey())) {
+            throw new OrderWithSuchIdempotencyKeyAlreadyExistsException(orderCreationRequestBody.idempotencyKey());
         }
     }
 

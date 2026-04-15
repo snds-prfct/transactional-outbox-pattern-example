@@ -1,6 +1,6 @@
 package dev.snds_prfct.orders.mapper;
 
-import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
+import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
@@ -47,13 +47,13 @@ class OrderMapperTest {
     @Test
     void testOrderCreationRequestDtoToOrderEntityMapping() {
         // given
-        OrderCreationRequestDto orderCreationRequestDto = getOrderCreationRequestDto();
+        OrderCreationRequestBody orderCreationRequestBody = getOrderCreationRequestDto();
         Order expectedOrder = getTestOrder();
         expectedOrder.setId(null);
         List<Product> products = List.of(getProduct1(), getProduct2());
 
         // when
-        Order order = orderMapper.map(orderCreationRequestDto, products);
+        Order order = orderMapper.map(orderCreationRequestBody, products);
 
         // then
         assertThat(order)

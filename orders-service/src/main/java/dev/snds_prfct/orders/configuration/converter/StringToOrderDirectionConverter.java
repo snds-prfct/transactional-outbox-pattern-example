@@ -1,6 +1,6 @@
 package dev.snds_prfct.orders.configuration.converter;
 
-import dev.snds_prfct.orders.dto.request.OrderDirection;
+import dev.snds_prfct.orders.dto.request.query_parameter.OrderDirection;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

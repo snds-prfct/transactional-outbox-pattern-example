@@ -1,4 +1,4 @@
-package dev.snds_prfct.orders.message;
+package dev.snds_prfct.orders.kafka.message;
 
 import lombok.Builder;
 

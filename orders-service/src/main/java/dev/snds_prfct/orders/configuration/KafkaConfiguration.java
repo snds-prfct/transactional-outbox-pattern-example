@@ -1,5 +1,7 @@
 package dev.snds_prfct.orders.configuration;
 
+import dev.snds_prfct.orders.kafka.property.OutboxEventsCancelledOrdersTopicProperties;
+import dev.snds_prfct.orders.kafka.property.OutboxEventsCreatedOrdersTopicProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;

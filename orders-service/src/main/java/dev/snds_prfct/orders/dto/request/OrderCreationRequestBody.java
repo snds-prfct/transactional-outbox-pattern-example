@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Schema(title = "Request body for order creation request")
-public record OrderCreationRequestDto(
+public record OrderCreationRequestBody(
         @Schema(example = "c25a7996-bd20-49e6-b79c-d358e4532091")
         @NotNull
         UUID idempotencyKey,

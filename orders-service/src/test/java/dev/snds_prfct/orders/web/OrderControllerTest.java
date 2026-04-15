@@ -3,8 +3,8 @@ package dev.snds_prfct.orders.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.snds_prfct.orders.controller.OrderController;
-import dev.snds_prfct.orders.dto.request.OrderCreationRequestDto;
-import dev.snds_prfct.orders.dto.response.ErrorDetails;
+import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
+import dev.snds_prfct.orders.dto.response.ErrorDetailsResponseBody;
 import dev.snds_prfct.orders.exception.OrderWithSuchIdempotencyKeyAlreadyExistsException;
 import dev.snds_prfct.orders.exception.ProductsNotAvailableException;
 import dev.snds_prfct.orders.exception.ProductsNotFoundException;
@@ -51,7 +51,7 @@ public class OrderControllerTest {
         Mockito.when(orderService.createOrder(any()))
                 .thenThrow(new ProductsNotFoundException(List.of(1L)));
         String orderCreationRequestDtoJson = getOrderCreationRequestDtoJson();
-        ErrorDetails expectedErrorResponse = new ErrorDetails(null, HttpStatus.CONFLICT.value(), "Products with ids [1] not found");
+        ErrorDetailsResponseBody expectedErrorResponse = new ErrorDetailsResponseBody(null, HttpStatus.CONFLICT.value(), "Products not found");
 
         // when then
         String responseJson = mockMvc.perform(post("/orders")
@@ -60,8 +60,8 @@ public class OrderControllerTest {
                 .andExpect(status().isConflict())
                 .andReturn().getResponse().getContentAsString();
 
-        ErrorDetails errorDetails = objectMapper.readValue(responseJson, ErrorDetails.class);
-        assertThat(errorDetails)
+        ErrorDetailsResponseBody errorDetailsResponseBody = objectMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
+        assertThat(errorDetailsResponseBody)
                 .usingRecursiveComparison()
                 .ignoringFieldsOfTypes(Instant.class)
                 .isEqualTo(expectedErrorResponse);
@@ -74,10 +74,10 @@ public class OrderControllerTest {
         Mockito.when(orderService.createOrder(any()))
                 .thenThrow(new ProductsNotAvailableException(List.of(1L)));
         String orderCreationRequestDtoJson = getOrderCreationRequestDtoJson();
-        ErrorDetails expectedErrorResponse = new ErrorDetails(
+        ErrorDetailsResponseBody expectedErrorResponse = new ErrorDetailsResponseBody(
                 null,
                 HttpStatus.CONFLICT.value(),
-                "Products with ids [1] are not available");
+                "Products not available");
 
         // when then
         String responseJson = mockMvc.perform(post("/orders")
@@ -86,8 +86,8 @@ public class OrderControllerTest {
                 .andExpect(status().isConflict())
                 .andReturn().getResponse().getContentAsString();
 
-        ErrorDetails errorDetails = objectMapper.readValue(responseJson, ErrorDetails.class);
-        assertThat(errorDetails)
+        ErrorDetailsResponseBody errorDetailsResponseBody = objectMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
+        assertThat(errorDetailsResponseBody)
                 .usingRecursiveComparison()
                 .ignoringFieldsOfTypes(Instant.class)
                 .isEqualTo(expectedErrorResponse);
@@ -100,10 +100,10 @@ public class OrderControllerTest {
         Mockito.when(orderService.createOrder(any()))
                 .thenThrow(new OrderWithSuchIdempotencyKeyAlreadyExistsException(TEST_IDEMPOTENCY_KEY));
         String orderCreationRequestDtoJson = getOrderCreationRequestDtoJson();
-        ErrorDetails expectedErrorResponse = new ErrorDetails(
+        ErrorDetailsResponseBody expectedErrorResponse = new ErrorDetailsResponseBody(
                 null,
                 HttpStatus.BAD_REQUEST.value(),
-                "Order with idempotency key '%s' already exists".formatted(TEST_IDEMPOTENCY_KEY));
+                "The order has already been created");
 
         // when then
         String responseJson = mockMvc.perform(post("/orders")
@@ -112,18 +112,18 @@ public class OrderControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn().getResponse().getContentAsString();
 
-        ErrorDetails errorDetails = objectMapper.readValue(responseJson, ErrorDetails.class);
-        assertThat(errorDetails)
+        ErrorDetailsResponseBody errorDetailsResponseBody = objectMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
+        assertThat(errorDetailsResponseBody)
                 .usingRecursiveComparison()
                 .ignoringFieldsOfTypes(Instant.class)
                 .isEqualTo(expectedErrorResponse);
     }
 
     private String getOrderCreationRequestDtoJson() throws JsonProcessingException {
-        OrderCreationRequestDto orderCreationRequestDto = new OrderCreationRequestDto(
+        OrderCreationRequestBody orderCreationRequestBody = new OrderCreationRequestBody(
                 TEST_IDEMPOTENCY_KEY,
                 Map.of(1L, 2),
                 "Delivery Address");
-        return objectMapper.writeValueAsString(orderCreationRequestDto);
+        return objectMapper.writeValueAsString(orderCreationRequestBody);
     }
 }

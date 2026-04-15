@@ -68,4 +68,15 @@ public class Order {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", customerId=" + customerId +
+                ", idempotencyKey=" + idempotencyKey +
+                ", createdAt=" + createdAt +
+                ", status=" + status +
+                '}';
+    }
 }
