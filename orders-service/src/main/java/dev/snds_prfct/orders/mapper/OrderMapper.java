@@ -30,7 +30,7 @@ import java.util.Map;
 public abstract class OrderMapper {
 
     @Autowired
-    private JsonMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderItems", source = "productsAmountByProductId", qualifiedByName = "mapProductsToOrderItems")
@@ -45,7 +45,7 @@ public abstract class OrderMapper {
     public abstract OrderResponseDto map(Order order);
 
     public Order map(String orderJson) {
-        return objectMapper.readValue(orderJson, Order.class);
+        return jsonMapper.readValue(orderJson, Order.class);
     }
 
     public PageableResponse<OrderResponseDto> map(Page<Order> pageableResult) {
