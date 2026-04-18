@@ -1,7 +1,5 @@
 package dev.snds_prfct.orders.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.snds_prfct.orders.constant.OrderOutboxEventStatus;
 import dev.snds_prfct.orders.constant.OrderOutboxEventType;
 import dev.snds_prfct.orders.entity.orders.Order;
@@ -14,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Set;
@@ -27,7 +27,7 @@ public class OrderOutboxService {
     private int outboxReadBatchSize;
 
     private final OrderOutboxEventRepository orderOutboxEventRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     public List<OrderOutboxEvent> findPendingOrderOutboxEventsBatch() {
         return orderOutboxEventRepository.findPendingOrderOutboxEventsBatch(outboxReadBatchSize);
@@ -48,8 +48,8 @@ public class OrderOutboxService {
 
     private String serializePayload(Order order) {
         try {
-            return objectMapper.writeValueAsString(order);
-        } catch (JsonProcessingException e) {
+            return jsonMapper.writeValueAsString(order);
+        } catch (JacksonException e) {
             log.error("Failed to serialize order into JSON format for order outbox event payload. Order: {}", order.toString(), e);
             throw new OutboxEventPayloadWasNotSerializedException(e);
         }

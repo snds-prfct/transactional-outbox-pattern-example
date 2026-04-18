@@ -1,7 +1,5 @@
 package dev.snds_prfct.orders.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.snds_prfct.orders.controller.OrderController;
 import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
 import dev.snds_prfct.orders.dto.response.ErrorDetailsResponseBody;
@@ -18,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.List;
@@ -42,7 +41,7 @@ public class OrderControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @Test
     @SneakyThrows
@@ -60,7 +59,7 @@ public class OrderControllerTest {
                 .andExpect(status().isConflict())
                 .andReturn().getResponse().getContentAsString();
 
-        ErrorDetailsResponseBody errorDetailsResponseBody = objectMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
+        ErrorDetailsResponseBody errorDetailsResponseBody = jsonMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
         assertThat(errorDetailsResponseBody)
                 .usingRecursiveComparison()
                 .ignoringFieldsOfTypes(Instant.class)
@@ -86,7 +85,7 @@ public class OrderControllerTest {
                 .andExpect(status().isConflict())
                 .andReturn().getResponse().getContentAsString();
 
-        ErrorDetailsResponseBody errorDetailsResponseBody = objectMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
+        ErrorDetailsResponseBody errorDetailsResponseBody = jsonMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
         assertThat(errorDetailsResponseBody)
                 .usingRecursiveComparison()
                 .ignoringFieldsOfTypes(Instant.class)
@@ -112,18 +111,18 @@ public class OrderControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn().getResponse().getContentAsString();
 
-        ErrorDetailsResponseBody errorDetailsResponseBody = objectMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
+        ErrorDetailsResponseBody errorDetailsResponseBody = jsonMapper.readValue(responseJson, ErrorDetailsResponseBody.class);
         assertThat(errorDetailsResponseBody)
                 .usingRecursiveComparison()
                 .ignoringFieldsOfTypes(Instant.class)
                 .isEqualTo(expectedErrorResponse);
     }
 
-    private String getOrderCreationRequestDtoJson() throws JsonProcessingException {
+    private String getOrderCreationRequestDtoJson() {
         OrderCreationRequestBody orderCreationRequestBody = new OrderCreationRequestBody(
                 TEST_IDEMPOTENCY_KEY,
                 Map.of(1L, 2),
                 "Delivery Address");
-        return objectMapper.writeValueAsString(orderCreationRequestBody);
+        return jsonMapper.writeValueAsString(orderCreationRequestBody);
     }
 }
