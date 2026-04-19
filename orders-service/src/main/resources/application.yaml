@@ -1,4 +1,8 @@
 
+app:
+  scheduling:
+    enabled: true
+
 spring:
   application:
     name: orders-service

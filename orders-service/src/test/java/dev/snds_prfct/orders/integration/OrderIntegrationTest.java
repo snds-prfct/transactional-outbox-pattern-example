@@ -1,11 +1,14 @@
 package dev.snds_prfct.orders.integration;
 
+import dev.snds_prfct.orders.constant.OrderOutboxEventStatus;
+import dev.snds_prfct.orders.constant.OrderOutboxEventType;
 import dev.snds_prfct.orders.constant.OrderStatus;
 import dev.snds_prfct.orders.dto.request.OrderCreationRequestBody;
 import dev.snds_prfct.orders.dto.response.OrderResponseDto;
 import dev.snds_prfct.orders.dto.response.PageableResponse;
 import dev.snds_prfct.orders.entity.orders.Order;
 import dev.snds_prfct.orders.entity.orders.OrderItem;
+import dev.snds_prfct.orders.entity.outbox.OrderOutboxEvent;
 import dev.snds_prfct.orders.test_component.DaoUtils;
 import dev.snds_prfct.orders.test_component.TestcontainersConfiguration;
 import lombok.SneakyThrows;
@@ -15,7 +18,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlMergeMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import tools.jackson.core.type.TypeReference;
@@ -26,7 +31,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -36,6 +43,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
+@ActiveProfiles("test")
+@Sql(
+        scripts = "/sql/truncate-tables-except-products.sql",
+        executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
+)
+@Sql(
+        scripts = "/sql/init-products.sql",
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
+)
 public class OrderIntegrationTest {
 
     @Autowired
@@ -46,7 +62,6 @@ public class OrderIntegrationTest {
     private JsonMapper jsonMapper;
 
     @Test
-    @Sql(value = "/sql/init-products.sql")
     @SneakyThrows
     void testNewOrderCreation() {
         // given
@@ -79,7 +94,8 @@ public class OrderIntegrationTest {
         // checking orders in db
         List<Order> customerOrders = daoUtils.findAllOrdersByCustomerId(1L);
 
-        assertThat(customerOrders).isNotEmpty().hasSize(1);
+        assertThat(customerOrders)
+                .hasSize(1);
         assertThat(customerOrders.get(0))
                 .usingRecursiveComparison()
                 .ignoringFields("createdAt", "orderItems")
@@ -87,7 +103,8 @@ public class OrderIntegrationTest {
 
         // checking order items in db
         List<OrderItem> savedOrderItems = daoUtils.findAllOrderItemsByOrderId(1L);
-        assertThat(savedOrderItems).isNotEmpty().hasSize(2);
+        assertThat(savedOrderItems)
+                .hasSize(2);
         assertThat(savedOrderItems)
                 .extracting(item -> item.getProduct().getId())
                 .containsExactlyInAnyOrder(1L, 2L);
@@ -103,7 +120,46 @@ public class OrderIntegrationTest {
         }
 
         // checking order outbox events in db
+        List<OrderOutboxEvent> orderOutboxEvents = daoUtils.findAllOrderOutboxEvents();
+        assertThat(orderOutboxEvents)
+                .hasSize(1)
+                .extracting(OrderOutboxEvent::getType, OrderOutboxEvent::getStatus, OrderOutboxEvent::getCreatedAt)
+                .allSatisfy(tuple -> {
+                    List<Object> list = tuple.toList();
+                    assertThat(list.get(0)).isEqualTo(OrderOutboxEventType.ORDER_CREATED);
+                    assertThat(list.get(1)).isEqualTo(OrderOutboxEventStatus.PENDING);
+                    assertThat(list.get(2)).isNotNull();
+                });
+    }
 
+    @Test
+    @SneakyThrows
+    @Sql(scripts = "/sql/init-order.sql")
+    @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
+    void testOrderCancellation() {
+        // when
+        mockMvc.perform(
+                        patch("/orders/1/cancel")
+                )
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON.toString()))
+                .andExpect(content().json("{\"orderId\": 1}"))
+                .andDo(print());
+
+        // then
+        List<Order> customerOrders = daoUtils.findAllOrdersByCustomerId(1L);
+
+        assertThat(customerOrders)
+                .hasSize(1)
+                .extracting(Order::getId, Order::getStatus)
+                .containsExactly(tuple(1L, OrderStatus.CANCELED));
+
+        List<OrderOutboxEvent> orderOutboxEvents = daoUtils.findAllOrderOutboxEvents();
+
+        assertThat(orderOutboxEvents)
+                .hasSize(1)
+                .extracting(OrderOutboxEvent::getType, OrderOutboxEvent::getStatus)
+                .containsExactly(tuple(OrderOutboxEventType.ORDER_CANCELLED, OrderOutboxEventStatus.PENDING));
     }
 
     @Test

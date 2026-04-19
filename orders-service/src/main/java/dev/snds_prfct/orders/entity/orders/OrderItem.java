@@ -33,7 +33,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    @JsonIgnore
+    @JsonIgnore // todo
     private Order order;
 
     @ManyToOne

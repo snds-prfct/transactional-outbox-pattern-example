@@ -1,0 +1,3 @@
+INSERT INTO outbox.outbox_events (id, type, status, payload) VALUES
+    (1, 'ORDER_CREATED', 'PENDING', '{"id" : 1, "customer_id" : 1, "delivery_address" : "address", "status" : "PENDING", "orderItems": [{"id": 1, "product": {"id": 1, "name": "phone", "price": 100, "isAvailable": true}, "quantity": 1, "unitPrice": 100}]}'),
+    (2, 'ORDER_CREATED', 'PENDING', '{"id" : 2, "customer_id" : 2, "delivery_address" : "address", "status" : "PENDING", "orderItems": [{"id": 2, "product": {"id": 2, "name": "phone", "price": 100, "isAvailable": true}, "quantity": 1, "unitPrice": 100}]}');
