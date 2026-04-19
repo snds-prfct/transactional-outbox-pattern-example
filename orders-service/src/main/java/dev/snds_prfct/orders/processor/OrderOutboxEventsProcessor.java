@@ -36,7 +36,7 @@ public class OrderOutboxEventsProcessor {
     private final OrderMessageMapper orderMessageMapper;
 
     @Scheduled(fixedDelayString = "${orders.outbox.processing.fixedDelayMs}")
-    void processOutboxEvents() {
+    public void processOutboxEvents() {
         List<MessageInfo<Long, OrderMessage>> messages = findNextPendingMessages();
 
         if (messages.isEmpty()) {
