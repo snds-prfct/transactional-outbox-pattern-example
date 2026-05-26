@@ -15,7 +15,7 @@ The project that implements [**Transactional Outbox** pattern](https://microserv
 ## Technologies and Tools
 
 - [x] **Java 25**
-- [x] **Spring Boot** 4.0.4
+- [x] **Spring Boot 4**
 - [x] **PostgreSQL** Database
 - [x] **Apache Kafka** Message Broker
 - [x] **Kafka UI**
@@ -32,10 +32,14 @@ The project that implements [**Transactional Outbox** pattern](https://microserv
 
 ## Running the System using the Docker Compose tool
 
-In order to run the system it is necessary to build Orders Microservice first:
-> mvn clean package
+Prerequisites:
+1. JDK 25 installed
+2. Docker and Docker Compose
 
-Then the Docker images can be built:
+In order to run the system it is necessary to build Orders Microservice first:
+> ./mvnw clean package
+
+Then the Docker image can be built:
 > docker compose build [--no-cache]
 
 And the full System can be launched:
