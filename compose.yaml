@@ -74,7 +74,9 @@ services:
 
   orders-service:
     image: snds_prfct/orders-service:0.1
-    build: orders-service/
+    build:
+      context: .
+      dockerfile: orders-service/Dockerfile
     container_name: orders_service
     depends_on:
       - orders-db
