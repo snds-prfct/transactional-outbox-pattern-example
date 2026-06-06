@@ -36,10 +36,7 @@ Prerequisites:
 1. JDK 25 installed
 2. Docker and Docker Compose
 
-In order to run the system it is necessary to build Orders Microservice first:
-> ./mvnw clean package
-
-Then the Docker image can be built:
+In order to run the system it is necessary to build Orders Microservice image first:
 > docker compose build [--no-cache]
 
 And the full System can be launched:
